@@ -4,38 +4,230 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Available Courses</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <script src="index.js"></script>
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        td {
-           background-color: aliceblue;
+        :root {
+            --bg: #0f0f0f;
+            --card: #1a1a1a;
+            --accent: #c8f55a;
+            --text: #f0f0f0;
+            --muted: #888;
+            --border: #2a2a2a;
         }
 
         body {
-            padding: 50px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            padding: 24px 16px;
         }
 
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .back {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 32px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
+        }
+
+        .back:hover { color: var(--accent); }
+
+        .page-header {
+            margin: 24px 0 32px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: rgba(200,245,90,0.12);
+            color: var(--accent);
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 5px 12px;
+            border-radius: 100px;
+            margin-bottom: 14px;
+            border: 1px solid rgba(200,245,90,0.2);
+        }
+
+        h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(1.8rem, 6vw, 2.5rem);
+            font-weight: 800;
+        }
+
+        h1 span { color: var(--accent); }
+
+        /* Desktop Table */
+        .table-wrap {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background: #222;
+        }
+
+        th {
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        td {
+            padding: 16px 20px;
+            font-size: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        tbody tr:hover { background: #1f1f1f; }
+
+        .badge {
+            background: rgba(200,245,90,0.12);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Mobile Cards */
+        .mobile-cards { display: none; }
+
+        .course-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+        }
+
+        .course-card-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .course-card-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .course-card-label { color: var(--muted); }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .table-wrap { display: none; }
+            .mobile-cards { display: block; }
+        }
     </style>
-    <script type="text/javascript" src="index.js"></script>
 </head>
 <body>
-    <table align="center" border="1" style="background-color: black;">
-        <tr align="center" style="background-color: aliceblue;">
-            <th width="100px" height="30px">Course Id</th>
-            <th width="150px" height="30px">Course Name</th>
-            <th width="150px" height="30px">Trainer</th>
-            <th width="150px" height="30px">Duration in Weeks</th>
-        </tr>
-        
-        <tbody align="center" id="coursetable"></tbody>
-    </table>
+    <div class="container">
+        <a href="index.html" class="back">← Back to Home</a>
 
+        <div class="page-header">
+            <div class="tag">✦ Catalog</div>
+            <h1>Available <span>Courses</span></h1>
+        </div>
 
-    <script type="text/javascript">
-       
-       window.onload = function() {
-            showCourses();
+        <!-- Desktop Table -->
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Course ID</th>
+                        <th>Course Name</th>
+                        <th>Trainer</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody id="coursetable">
+                    <tr><td colspan="4" class="loading">Loading courses...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="mobile-cards" id="mobilecourses">
+            <div class="loading">Loading courses...</div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() { showCourses(); }
+
+        // Override showCourses to also populate mobile cards
+        const _orig = window.showCourses;
+        window.showCourses = function() {
+            fetch("https://courseregistrationsystem-7kon.onrender.com/courses")
+                .then(r => r.json())
+                .then(courses => {
+                    // Desktop table
+                    let table = document.getElementById("coursetable");
+                    table.innerHTML = "";
+                    // Mobile cards
+                    let mobile = document.getElementById("mobilecourses");
+                    mobile.innerHTML = "";
+
+                    if (courses.length === 0) {
+                        table.innerHTML = `<tr><td colspan="4" class="loading">No courses available yet.</td></tr>`;
+                        mobile.innerHTML = `<div class="loading">No courses available yet.</div>`;
+                        return;
+                    }
+
+                    courses.forEach(course => {
+                        table.innerHTML += `<tr>
+                            <td>${course.courseId}</td>
+                            <td>${course.courseName}</td>
+                            <td>${course.trainer}</td>
+                            <td><span class="badge">${course.durationInWeeks} weeks</span></td>
+                        </tr>`;
+
+                        mobile.innerHTML += `<div class="course-card">
+                            <div class="course-card-title">${course.courseName}</div>
+                            <div class="course-card-row"><span class="course-card-label">ID</span><span>${course.courseId}</span></div>
+                            <div class="course-card-row"><span class="course-card-label">Trainer</span><span>${course.trainer}</span></div>
+                            <div class="course-card-row"><span class="course-card-label">Duration</span><span class="badge">${course.durationInWeeks} weeks</span></div>
+                        </div>`;
+                    });
+                })
+                .catch(() => {
+                    document.getElementById("coursetable").innerHTML = `<tr><td colspan="4" class="loading">Failed to load courses.</td></tr>`;
+                });
         }
-
     </script>
 </body>
 </html>
