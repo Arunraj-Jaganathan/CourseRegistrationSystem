@@ -25,7 +25,7 @@ public class CourseController {
         return courseService.enrolledStudent();
     }
 
-    @PostMapping("courses/register")
+    @PostMapping("/courses/register")
     public String enrolledCourse(@RequestParam("name") String name,
                                  @RequestParam("emailId") String emailId,
                                  @RequestParam("courseName") String courseName) {
