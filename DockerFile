@@ -9,3 +9,5 @@ WORKDIR /app/backend
 RUN chmod +x mvnw && ./mvnw clean package -DskipTests
 
 CMD ["sh", "-c", "java -jar target/*.jar"]
+
+#Hello done
