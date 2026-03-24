@@ -1,4 +1,4 @@
-const API_BASE = "https://courseregistrationsystem-7kon.onrender.com";
+const API_BASE = "https://courseregistrationsystem-7kon.onrender.com"; //api base url
 
 function showCourses() {
     fetch(`${API_BASE}/courses`)
