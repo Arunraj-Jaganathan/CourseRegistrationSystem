@@ -35,3 +35,22 @@ function enrolledStudents(){
         });
     });
 }
+
+function registerCourse(event) {
+    event.preventDefault();
+
+    const name = document.querySelector('input[name="name"]').value;
+    const emailId = document.querySelector('input[name="emailId"]').value;
+    const courseName = document.querySelector('select[name="courseName"]').value;
+
+    fetch(`https://courseregistrationsystem-8wau.onrender.com/courses/register?name=${encodeURIComponent(name)}&emailId=${encodeURIComponent(emailId)}&courseName=${encodeURIComponent(courseName)}`, {
+        method: "POST"
+    })
+    .then(response => response.text())
+    .then(message => {
+        alert(message);
+    })
+    .catch(error => {
+        alert("Something went wrong. Please try again.");
+    });
+}
